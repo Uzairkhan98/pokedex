@@ -13,11 +13,10 @@ type cliCommand struct {
 	callback    func() error
 }
 
-var command map[string]cliCommand
-var exit = false
+var commands map[string]cliCommand
 
 func init() {
-	command = map[string]cliCommand{
+	commands = map[string]cliCommand{
 		"help": {
 			name:        "help",
 			description: "Displays a help message",
@@ -32,12 +31,15 @@ func init() {
 }
 
 func commandHelp() error {
-	fmt.Printf("\nWelcome to the Pokedex!\nUsage: \n\n%v: %v\n%v: %v\n\n", command["help"].name, command["help"].description, command["exit"].name, command["exit"].description)
+	fmt.Printf("\nWelcome to the Pokedex!\nUsage: \n\n")
+	for _, command := range commands {
+        fmt.Printf("%s: %s\n", command.name, command.description)
+    }
 	return nil
 }
 
 func commandExit() error {
-	exit = true
+	os.Exit(0)
 	return nil
 }
 
@@ -45,7 +47,7 @@ func commandExit() error {
 func main() {
 	reader := bufio.NewReader(os.Stdin)
 
-    for !exit{
+    for {
         fmt.Print("Pokedex > ")
         input, err := reader.ReadString('\n')
         if err != nil {
@@ -54,7 +56,7 @@ func main() {
         }
 
         input = strings.TrimSpace(input)
-		if command, ok := command[input]; ok {
+		if command, ok := commands[input]; ok {
 			err := command.callback()
             if err!= nil {
                 fmt.Println("Error executing command:", err)
