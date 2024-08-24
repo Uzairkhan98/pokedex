@@ -28,14 +28,18 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 }
 
 func (c *Cache) reapLoop(interval time.Duration) {
-	c.mut.Lock()
-	defer c.mut.Unlock()
 	ticker := time.NewTicker(interval)
 	for range ticker.C {
-		for key, entry := range c.cache {
-			if time.Since(entry.createdAt) > interval {
-				delete(c.cache, key)
-			}
+		c.reap(interval)
+	}
+}
+
+func (c *Cache) reap(interval time.Duration) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
+	for key, entry := range c.cache {
+		if time.Since(entry.createdAt) > interval {
+			delete(c.cache, key)
 		}
 	}
 }
