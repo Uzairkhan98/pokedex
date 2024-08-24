@@ -1,27 +1,24 @@
 package pokecache
 
 import (
-	"sync"
 	"time"
 )
 
-var mut sync.RWMutex
-
-func NewCache(interval time.Duration) Cache {
-	cache := Cache{data: make(map[string]cacheEntry)}
+func NewCache(interval time.Duration) *Cache {
+	cache := &Cache{data: make(map[string]cacheEntry)}
 	go cache.reapLoop(interval)
 	return cache
 }
 
 func (c *Cache) Add(key string, val []byte) {
-	mut.Lock()
-	defer mut.Unlock()
+	c.mut.Lock()
+	defer c.mut.Unlock()
 	c.data[key] = cacheEntry{createdAt: time.Now(), val: val}
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
-	mut.RLock()
-	defer mut.RUnlock()
+	c.mut.RLock()
+	defer c.mut.RUnlock()
 	entry, ok := c.data[key]
 	if !ok {
 		return nil, false
