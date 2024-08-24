@@ -6,6 +6,7 @@ import (
 )
 
 func commandMapf(cfg *config) error {
+	// data, exists := cfg.pokecache.Get(cfg.location)
 	locationsResp, err := cfg.pokeapiClient.ListLocations(cfg.nextLocationsURL)
 	if err != nil {
 		return err
