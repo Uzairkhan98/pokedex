@@ -1,11 +1,12 @@
 package pokecache
 
 import (
+	"sync"
 	"time"
 )
 
 func NewCache(interval time.Duration) *Cache {
-	cache := &Cache{data: make(map[string]cacheEntry)}
+	cache := &Cache{cache: make(map[string]cacheEntry), mut: &sync.RWMutex{}}
 	go cache.reapLoop(interval)
 	return cache
 }
@@ -13,13 +14,13 @@ func NewCache(interval time.Duration) *Cache {
 func (c *Cache) Add(key string, val []byte) {
 	c.mut.Lock()
 	defer c.mut.Unlock()
-	c.data[key] = cacheEntry{createdAt: time.Now(), val: val}
+	c.cache[key] = cacheEntry{createdAt: time.Now().UTC(), val: val}
 }
 
 func (c *Cache) Get(key string) ([]byte, bool) {
 	c.mut.RLock()
 	defer c.mut.RUnlock()
-	entry, ok := c.data[key]
+	entry, ok := c.cache[key]
 	if !ok {
 		return nil, false
 	}
@@ -27,11 +28,13 @@ func (c *Cache) Get(key string) ([]byte, bool) {
 }
 
 func (c *Cache) reapLoop(interval time.Duration) {
+	c.mut.Lock()
+	defer c.mut.Unlock()
 	ticker := time.NewTicker(interval)
 	for range ticker.C {
-		for key, entry := range c.data {
+		for key, entry := range c.cache {
 			if time.Since(entry.createdAt) > interval {
-				delete(c.data, key)
+				delete(c.cache, key)
 			}
 		}
 	}

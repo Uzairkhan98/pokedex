@@ -11,6 +11,6 @@ type cacheEntry struct {
 }
 
 type Cache struct {
-	data map[string]cacheEntry
-	mut  sync.RWMutex
+	cache map[string]cacheEntry
+	mut   *sync.RWMutex
 }
