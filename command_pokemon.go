@@ -6,24 +6,24 @@ import (
 	"math/rand"
 )
 
-func commandCatch(cfg *config, str string) error {
-	if str == "" {
+func commandCatch(cfg *config, name string) error {
+	if name == "" {
 		return errors.New("pokemon name cannot be empty")
 	}
-	_, exists := cfg.pokedex[str]
+	_, exists := cfg.pokedex[name]
 	if exists {
-		return fmt.Errorf("%s already exists in your pokedex", str)
+		return fmt.Errorf("%s already exists in your pokedex", name)
 	}
-	fmt.Println("Throwing a Pokeball at " + str + "...")
-	pokeDetails, err := cfg.pokeapiClient.PokemonDetails(str)
+	pokeDetails, err := cfg.pokeapiClient.PokemonDetails(name)
 	if err != nil {
 		return err
 	}
+	fmt.Println("Throwing a Pokeball at " + name + "...")
 	chance := rand.Intn(pokeDetails.BaseExperience)
 	if chance > 20 {
-		return fmt.Errorf("%s escaped!", str)
+		return fmt.Errorf("%s escaped!", name)
 	}
-	fmt.Println(str, " was caught!")
-	cfg.pokedex[str] = pokeDetails
+	fmt.Println(name, " was caught!")
+	cfg.pokedex[name] = pokeDetails
 	return nil
 }
