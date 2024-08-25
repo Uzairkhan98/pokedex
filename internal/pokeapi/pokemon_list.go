@@ -2,16 +2,12 @@ package pokeapi
 
 import (
 	"encoding/json"
-	"errors"
 	"io"
 	"net/http"
 )
 
 // ListPokemons -
 func (c *Client) ListPokemons(pageURL string) (RespDeepLocations, error) {
-	if pageURL == "" {
-		return RespDeepLocations{}, errors.New("you must provide an ID or name")
-	}
 	url := baseURL + "/location-area/" + pageURL
 
 	cacheData, exists := c.cache.Get(url)
